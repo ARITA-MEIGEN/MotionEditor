@@ -25,7 +25,7 @@
 //===========================
 CModel::CModel() 
 {
-
+	m_col = D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 //===========================
@@ -57,7 +57,31 @@ void CModel::Uninit(void)
 //===========================
 void CModel::Update(void)
 {
-
+	//角度の正規化
+	if (m_rot.x >= D3DX_PI)
+	{
+		m_rot.x -= D3DX_PI * 2;
+	}
+	else if (m_rot.x <= -D3DX_PI)
+	{
+		m_rot.x+= D3DX_PI * 2;
+	}
+	if (m_rot.y >= D3DX_PI)
+	{
+		m_rot.y -= D3DX_PI * 2;
+	}
+	else if (m_rot.y <= -D3DX_PI)
+	{
+		m_rot.y += D3DX_PI * 2;
+	}
+	if (m_rot.z >= D3DX_PI)
+	{
+		m_rot.z -= D3DX_PI * 2;
+	}
+	else if (m_rot.z <= -D3DX_PI)
+	{
+		m_rot.z += D3DX_PI * 2;
+	}
 }
 
 //===========================
@@ -114,6 +138,9 @@ void CModel::Draw(D3DXMATRIX pMtx)
 		//マテリアルの描画
 		for (int nCnt2 = 0; nCnt2 < (int)m_nNumMat; nCnt2++)
 		{
+			pMat[nCnt2].MatD3D.Diffuse = m_col;
+			pMat[nCnt2].MatD3D.Emissive = m_Emi;
+
 			//マテリアルの設定
 			pDevice->SetMaterial(&pMat[nCnt2].MatD3D);
 
@@ -178,8 +205,8 @@ void CModel::Shadow()
 		col[0] = pMat[i].MatD3D.Diffuse;			//色の保存
 		col[1] = pMat[i].MatD3D.Emissive;			//発光の保存
 
-		pMat[i].MatD3D.Diffuse = D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f);
-		pMat[i].MatD3D.Emissive = D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f);
+		pMat[i].MatD3D.Diffuse = m_col;
+		pMat[i].MatD3D.Emissive = m_Emi;
 		//マテリアルの設定
 		pDevice->SetMaterial(&pMat[i].MatD3D);
 
@@ -314,6 +341,19 @@ D3DXVECTOR3 CModel::GetPos()
 float CModel::GetWidth()
 {
 	 return m_vtxMax.x - m_vtxMin.x ;
+}
+
+//===========================
+//色の設定
+//===========================
+void CModel::SetCol(D3DXCOLOR col)
+{
+	m_col = col;
+}
+
+void CModel::SetEmi(D3DXCOLOR col)
+{
+	m_Emi = col;
 }
 
 //===========================

@@ -43,10 +43,13 @@ public:
 	float		GetWidth();
 	void		SetIdx(int Idx) { m_nIdx = Idx; };
 	int			GetIdx() { return m_nIdx; };
-	void		SetDPos(D3DXVECTOR3 pos) { m_DefaultPos = pos; };
-	D3DXVECTOR3	GetDPos() { return m_DefaultPos; };
-	void		SetDRot(D3DXVECTOR3 rot) { m_DefaultRot = rot; };
-	D3DXVECTOR3	GetDRot() { return m_DefaultRot; };
+	void		SetDPos(D3DXVECTOR3 pos) { m_DefaultPos = pos; };	//初期位置を設定
+	D3DXVECTOR3	GetDPos() { return m_DefaultPos; };					//初期位置を取得
+	void		SetDRot(D3DXVECTOR3 rot) { m_DefaultRot = rot; };	//初期角度を設定
+	D3DXVECTOR3	GetDRot() { return m_DefaultRot; };					//初期角度を取得
+	void		SetCol(D3DXCOLOR col);
+	void		SetEmi(D3DXCOLOR col);								//発光の設定
+
 
 
 
@@ -67,6 +70,10 @@ private:
 	CModel*				m_pParent;		//親のモデルへのポインタ
 	D3DXVECTOR3			m_DefaultPos;	//初期位置
 	D3DXVECTOR3			m_DefaultRot;	//初期位置
+	D3DXCOLOR			m_col;
+	D3DXCOLOR			m_Emi;
+
+
 };
 
 #endif

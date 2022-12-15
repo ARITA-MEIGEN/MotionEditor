@@ -65,7 +65,6 @@ void  CCamera::Update(void)
 	RadianPosV();		//視点の旋回
 	//DestPos();		//カメラの追従
 	NormalizeRadian();	//角度の正規化
-	CDebugProc::Print("カメラの視点の角度 x:%f y:%f z:%f",m_posV.x,m_posV.y,m_posV.z);
 }
 
 //===========================
@@ -133,6 +132,9 @@ void CCamera::RadianPosR(void)
 	m_posR.z = m_posV.z + sinf(m_rot.x)*cosf(m_rot.y)*m_fDistance;
 	m_posR.x = m_posV.x + sinf(m_rot.x)*sinf(m_rot.y)*m_fDistance;
 	m_posR.y = m_posV.y +cosf(m_rot.x)*m_fDistance;
+
+	CDebugProc::Print("カメラの注視点の旋回 I/J/K/L:X:%f Y:%f Z:%f", m_posR.z, m_posR.x,m_posR.y);
+
 }
 
 //===========================
@@ -146,27 +148,26 @@ void CCamera::RadianPosV(void)
 	if (pKeyboard->GetPress(DIK_Q) == true)
 	{
 		m_rot.y -= CAMERA_ROTSPEED;
-
 	}
 	else if (pKeyboard->GetPress(DIK_E) == true)
 	{
 		m_rot.y += CAMERA_ROTSPEED;
-
 	}
 	if (pKeyboard->GetPress(DIK_R) == true)
 	{
 		m_rot.x += CAMERA_ROTSPEED;
-
 	}
 	else if (pKeyboard->GetPress(DIK_F) == true)
 	{
 		m_rot.x -= CAMERA_ROTSPEED;
-
 	}
+
 	//視点の旋回
 	m_posV.z = m_posR.z - sinf(m_rot.x)*cosf(m_rot.y)*m_fDistance;
 	m_posV.x = m_posR.x - sinf(m_rot.x)*sinf(m_rot.y)*m_fDistance;
 	m_posV.y = m_posR.y - cosf(m_rot.x)*m_fDistance;
+
+	CDebugProc::Print("カメラの視点の旋回 Q/E/R/F x:%f y:%f z:%f", m_posV.x, m_posV.y, m_posV.z);
 }
 
 //===========================
@@ -240,14 +241,16 @@ void CCamera:: ControlPos(void)
 		m_posR.x = m_posV.x + sinf(m_rot.y)*m_fDistance;
 		m_posR.z = m_posV.z + cosf(m_rot.y)*m_fDistance;
 	}
-	else if (pKeyboard->GetPress(DIK_Z) == true)
-	{//上
+	//else if (pKeyboard->GetPress(DIK_Z) == true)
+	//{//上
 
-	}
-	else if (pKeyboard->GetPress(DIK_X) == true)
-	{//下
+	//}
+	//else if (pKeyboard->GetPress(DIK_X) == true)
+	//{//下
 
-	}
+	//}
+
+	CDebugProc::Print("カメラの視点の移動 W/A/S/D");
 }
 
 //===========================

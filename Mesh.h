@@ -23,7 +23,7 @@ public:
 	void			Uninit(void)override;
 	void			Update(void)override;
 	void			Draw(void)override;
-	static CMesh*	Create(int x, int z);
+	static CMesh*	Create(int x, int z, D3DXVECTOR3 pos);
 	float			Collision(D3DXVECTOR3 pos);			//Õ“Ë”»’è
 
 private:

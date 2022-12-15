@@ -24,7 +24,6 @@
 CPlayer*CGame::m_pPlayer = nullptr;
 CBg*CGame::m_pBg = nullptr;
 //CLife*CGame::m_Life = nullptr;				//体力ゲージ
-CMapdata* CGame::m_pMap = nullptr;
 CGame::GAME CGame::m_gamestate;
 
 CCamera*CGame::m_pCamera = nullptr;
@@ -61,7 +60,7 @@ HRESULT CGame::Init()
 
 	//背景の生成
 	//メッシュフィールドの設定
-	m_pMesh = CMesh::Create(20, 20);
+	//m_pMesh = CMesh::Create(20, 20,D3DXVECTOR3 (-200.0f, 0.0f, 200.0f));
 
 	//カメラの設定
 	m_pCamera = CCamera::Create();
@@ -70,7 +69,7 @@ HRESULT CGame::Init()
 	m_pLight = new CLight;
 	m_pLight->Init();
 
-	//CFloor::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(500.0f, 500.0f,500.0f));
+	CFloor::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(500.0f, 500.0f,500.0f));
 
 	return S_OK;
 }
@@ -89,6 +88,8 @@ void CGame::Uninit()
 	{
 		m_pCamera->Uninit();
 		delete m_pCamera;
+		m_pCamera=nullptr;
+
 	}
 
 	//ライトの設定
@@ -96,6 +97,7 @@ void CGame::Uninit()
 	{
 		m_pLight->Uninit();
 		delete m_pLight;
+		m_pLight = nullptr;
 	}
 }
 
@@ -171,3 +173,46 @@ CLight * CGame::GetLight()
 {
 	return m_pLight;
 }
+
+////======================================================
+////ステータスの表示
+////======================================================
+//void CApplication::DrawStatas(void)
+//{
+//	RECT rect = { 0,0,SCREEN_WIDTH,SCREEN_HEIGHT };
+//	char aStr[512];
+//
+//	//文字列に代入
+//	//wsprintf(&aStr[0], "FPS:%3d\n", g_nCountFPS);
+//
+//	//モデルの操作キー
+//	strcat(aStr, "モデルの操作:↑/↓/←/→\n");
+//
+//	//視点の旋回キー
+//	strcat(aStr, "視点の旋回:Q/E/R/F\n");
+//
+//	//注視点の旋回キー
+//	strcat(aStr, "注視点の旋回:J/L/I/K\n");
+//
+//	//カメラの位置操作キー
+//	strcat(aStr, "カメラの位置操作:W/A/S/D\n");
+//
+//	////視点の座標
+//	//char aStr2[400];
+//	//sprintf(aStr2, "視点の位置:%3f/%3f/%3f\n", m_pCamera->posV.x, m_pCamera->posV.y, m_pCamera->posV.z);
+//	//strcat(aStr, aStr2);
+//
+//	////注視点の座標
+//	//char aStr3[400];
+//	//sprintf(aStr3, "注視点の位置:%3f/%3f/%3f\n", m_pCamera->posR.x, m_pCamera->posR.y, m_pCamera->posR.z);
+//	//strcat(aStr, aStr3);
+//
+//	////ワイヤーフレーム
+//	//strcat(aStr, "ワイヤーフレームON/OFF:1/2\n");
+//
+//	////モデルの操作キー
+//	//strcat(aStr, "発射ァ！:SPACEを押すんだ！\n");
+//
+//	//テキストの描画
+//	m_pFont->DrawText(NULL, &aStr[0], -1, &rect, DT_LEFT, D3DCOLOR_RGBA(255, 255, 255, 255));
+//}

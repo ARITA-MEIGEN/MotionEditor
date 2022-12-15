@@ -69,16 +69,16 @@ void CDebugProc::Print(const char * pFormat, ...)
 			switch (*++p)
 			{
 			case 'd':
-				sprintf(&aStr[0], "%d ", va_arg(args, int));
+				sprintf(&aStr[0], "%d", va_arg(args, int));
 				break;
 			case 'f':
-				sprintf(&aStr[0], "%f ", va_arg(args, double));
+				sprintf(&aStr[0], "%.2f", va_arg(args, double));
 				break;
 			case 'c':
-				sprintf(&aStr[0], "%c ", va_arg(args, char));
+				sprintf(&aStr[0], "%c", va_arg(args, char));
 				break;
 			case 's':
-				sprintf(&aStr[0], "%s ", va_arg(args, const char*));
+				sprintf(&aStr[0], "%s", va_arg(args, const char*));
 				break;
 			default:
 				assert(!"ïsê≥Ç»ïœä∑éwíË");

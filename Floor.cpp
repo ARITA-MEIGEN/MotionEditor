@@ -11,13 +11,13 @@
 #include "Application.h"
 #include "Shadow.h"
 
-LPDIRECT3DTEXTURE9 CFloor::m_pTexture;		//ポリゴンのテクスチャ
+LPDIRECT3DTEXTURE9 CFloor::m_pTexture=nullptr;		//ポリゴンのテクスチャ
 //=============================================================================
 // コンストラクタ
 //=============================================================================
 CFloor::CFloor(int nPriority) :CObject3D(nPriority)
 {
-	m_pTexture = nullptr;											//ポリゴンのテクスチャ
+	
 }
 
 //=============================================================================

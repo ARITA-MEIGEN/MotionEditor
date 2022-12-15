@@ -216,13 +216,15 @@ void CMesh::Draw(void)
 //===========================
 //¶¬
 //===========================
-CMesh * CMesh::Create(int x,int z)
+CMesh * CMesh::Create(int x,int z,D3DXVECTOR3 pos)
 {
 	CMesh*pMesh;
 	pMesh = new CMesh(CObject::OBJTYPE_MAP);
 	pMesh->m_Xpolyogn = x;
 	pMesh->m_Zpolyogn = z;
 	pMesh->Init();
+	pMesh->m_pos = pos;
+
 
 	return pMesh;
 }
