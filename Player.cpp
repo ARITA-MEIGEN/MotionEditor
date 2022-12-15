@@ -291,7 +291,6 @@ void CPlayer::ReadMotion()
 	char Read[lenLine];			//読み取る用
 	int	modelnumber = 0;		//モデルの番号
 	int motionnumber = 0;		//モーションの番号
-	int nNumKey = 0;			//1つのモーションのキーの総数
 	int key = 0;
 	int model = 0;
 	int Idx = 0;
@@ -485,13 +484,7 @@ void CPlayer::WriteMotion(int nowmotion)
 {
 	const int lenLine = 2048;	//1単語の最大数
 	char strLine[lenLine];		//読み込み用の文字列
-	char Read[lenLine];			//読み取る用
-	int	modelnumber = 0;		//モデルの番号
-	int motionnumber = 0;		//モーションの番号
 	int nNumKey = 0;			//1モーションのキーの総数
-	int key = 0;
-	int model = 0;
-	int Idx = 0;
 
 
 	//ファイル読み込み

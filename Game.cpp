@@ -19,7 +19,6 @@
 #include"Shadow.h"
 #include"Fade.h"
 
-
 //静的メンバ変数
 CPlayer*CGame::m_pPlayer = nullptr;
 CBg*CGame::m_pBg = nullptr;
@@ -35,6 +34,7 @@ CMesh*CGame::m_pMesh = nullptr;
 //====================================
 CGame::CGame()
 {
+	
 }
 
 //====================================
@@ -173,6 +173,7 @@ CLight * CGame::GetLight()
 {
 	return m_pLight;
 }
+
 
 ////======================================================
 ////ステータスの表示

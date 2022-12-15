@@ -9,7 +9,6 @@
 #include"renderer.h"
 #include"Object2D.h"
 #include"Application.h"
-#include"DebugProc.h"
 
 //=============================================================================
 // コンストラクタ
@@ -84,6 +83,8 @@ HRESULT CRenderer::Init(HWND hWnd, bool bWindow)
 	////CRendererの初期化処理
 	//d3dpp.EnableAutoDepthStencil = TRUE;
 	//d3dpp.AutoDepthStencilFormat = D3DFMT_D24S8;
+
+	// Setup Platform/Renderer backends
 
 	// レンダーステートの設定
 	g_pD3DDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);

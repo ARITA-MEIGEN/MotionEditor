@@ -155,11 +155,6 @@
     <ClCompile Include="DebugProc.cpp" />
     <ClCompile Include="Floor.cpp" />
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="imgui-master\imgui.cpp" />
-    <ClCompile Include="imgui-master\imgui_demo.cpp" />
-    <ClCompile Include="imgui-master\imgui_draw.cpp" />
-    <ClCompile Include="imgui-master\imgui_tables.cpp" />
-    <ClCompile Include="imgui-master\imgui_widgets.cpp" />
     <ClCompile Include="InputJoypad.cpp" />
     <ClCompile Include="InputKeyBoard.cpp" />
     <ClCompile Include="Light.cpp" />
@@ -184,12 +179,6 @@
     <ClInclude Include="Fade.h" />
     <ClInclude Include="Floor.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="imgui-master\imconfig.h" />
-    <ClInclude Include="imgui-master\imgui.h" />
-    <ClInclude Include="imgui-master\imgui_internal.h" />
-    <ClInclude Include="imgui-master\imstb_rectpack.h" />
-    <ClInclude Include="imgui-master\imstb_textedit.h" />
-    <ClInclude Include="imgui-master\imstb_truetype.h" />
     <ClInclude Include="InputJoyPad.h" />
     <ClInclude Include="InputKeyBoard.h" />
     <ClInclude Include="Light.h" />
