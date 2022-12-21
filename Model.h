@@ -73,6 +73,9 @@ private:
 	D3DXCOLOR			m_col;
 	D3DXCOLOR			m_Emi;
 
+	D3DXVECTOR3			m_TempPos;						//編集用の仮座標
+	D3DXVECTOR3			m_TempRot;						//編集用の仮座標
+
 
 };
 

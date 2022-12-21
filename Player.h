@@ -17,7 +17,7 @@
 //前方宣言
 class CShadow;
 class CModel;
-class CLine;
+class CCollision;
 
 //マクロ定義
 #define MAX_MOTION		(20)	//モーションの数
@@ -26,7 +26,9 @@ class CLine;
 #define HOLD_TIME		(30)	//長押しして処理が通るまでの時間
 #define SINGLE_STA		(0.01f)	//単体で動かす量
 #define HOLD_STA		(0.05f)	//長押しで動かす量
-#define MAX_COLLISION	(5)		//1つのパーツにつき設定できる判定の数
+#define MAX_COLLISION	(20)	//1つのパーツにつき設定できる判定の数
+#define	MAX_POS			(50.0f)	//imguiで動かせる最大数
+
 
 class CPlayer :public CObject
 {
@@ -42,15 +44,18 @@ public:
 		float fRotY;
 		float fRotZ;
 
-		CLine* Collisionbox[MAX_COLLISION];
+		D3DXVECTOR3 fTempPos;
+		D3DXVECTOR3 fTempRot;
+
 	};
 
 	//キー情報
 	struct KEY_SET 
 	{
-		KEY aKey[NUM_PARTS];		//モデルの数分座標を持つ
-		int nFrame;					//再生時間
-		int nNumCollision;			//1つのキーの当たり判定の数
+		KEY aKey[NUM_PARTS];					//モデルの数分座標を持つ
+		int nFrame;								//再生時間
+		CCollision* Collision[MAX_COLLISION];	//当たり判定
+		int nNumCollision;						//1つのキーの当たり判定の数
 	};
 
 	struct MOTION_SET
@@ -95,7 +100,11 @@ public:
 	void			PlayFirstMotion();				//前と状態が違う場合のみ最初のモーションを設定する
 	void			EditMode();						//前と状態が違う場合のみ最初のモーションを設定する
 	void			Normalize(int number);			//角度の正規化
-	void			SetCollision();					//コリジョンの設定
+	void			PlayerStateDraw();				//プレイヤーの情報の編集と表示(IMGUI)
+	void			DrawCollision();				//プレイヤーの情報の編集と表示(IMGUI)
+	void			SetFrame();						//フレーム応じてモーションの位置を表示する
+
+
 
 private:
 	CModel*			m_apModel[NUM_PLAYERPARTS];		//モデルのインスタンス
@@ -126,6 +135,14 @@ private:
 	int				m_nEditModel;					//編集するモデル
 	int				m_nHold;						//長押し時間
 	int				m_nHoldold;						//長押し時間
+	D3DXVECTOR3		m_TempPos;						//編集用の仮座標
+	D3DXVECTOR3		m_TempRot;						//編集用の仮座標
+	D3DXVECTOR3		m_ColiPos;						//編集用の仮座標
+	D3DXVECTOR3		m_siz;
+	int				m_nSelectCollison;
+	CCollision* 	m_AxisBox;						//押し出し判定(プレイヤーの軸)
+
+
 
 	//テンプレート関数宣言
 	template <typename T, typename U>

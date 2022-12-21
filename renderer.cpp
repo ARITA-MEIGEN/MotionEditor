@@ -36,6 +36,7 @@ CRenderer::~CRenderer()
 //=============================================================================
 HRESULT CRenderer::Init(HWND hWnd, bool bWindow)
 {
+
 	D3DPRESENT_PARAMETERS d3dpp;
 	D3DDISPLAYMODE d3ddm;
 	g_pD3D = nullptr;
@@ -83,8 +84,10 @@ HRESULT CRenderer::Init(HWND hWnd, bool bWindow)
 	////CRendererの初期化処理
 	//d3dpp.EnableAutoDepthStencil = TRUE;
 	//d3dpp.AutoDepthStencilFormat = D3DFMT_D24S8;
-
+	
 	// Setup Platform/Renderer backends
+	ImGui_ImplWin32_Init(hWnd);
+	ImGui_ImplDX9_Init(g_pD3DDevice);	//レンダラーの生成後に作る
 
 	// レンダーステートの設定
 	g_pD3DDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
@@ -175,6 +178,15 @@ void  CRenderer::Draw()
 		//デバッグ情報の描画
 		CApplication::GetDebugProc()->Draw();
 
+		ImGui::End();	//終了
+
+		// Rendering
+		ImGui::EndFrame();
+
+		//ImGui
+		ImGui::Render();
+		ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
+
 		// Direct3Dによる描画の終了
 		g_pD3DDevice->EndScene();
 	}
@@ -191,6 +203,7 @@ LPDIRECT3DDEVICE9  CRenderer::GetDevice(void)
 {
 	return g_pD3DDevice;
 }
+
 
 //=============================================================================
 // FPS表示

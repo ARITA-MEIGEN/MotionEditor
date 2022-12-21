@@ -29,6 +29,7 @@
 #define MAX_POLYGON		(1920)			//ポリゴンの最大数
 #define SCREEN_WIDTH	(1280)			// スクリーンの幅
 #define SCREEN_HEIGHT	(720)			// スクリーンの高さ
+#define IMGUI_FONT_PASS	("c:\\Windows\\Fonts\\meiryo.ttc")	//IGMUI用のフォントパス
 
 //前方宣言
 class CApplication;

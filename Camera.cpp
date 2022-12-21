@@ -39,7 +39,7 @@ void CCamera::Init(void)
 {
 	//視点・注視点・上方向を設定
 	m_posV = D3DXVECTOR3(0.0f, 100.0f, -100.0f);
-	m_posR = D3DXVECTOR3(0.0f, 0.0f, 10.0f);
+	m_posR = D3DXVECTOR3(40.0f, 0.0f, 10.0f);
 	m_vecU = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
 	m_rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_rot.x = atan2f((m_posV.y - m_posR.y), (m_posV.z - m_posR.z));

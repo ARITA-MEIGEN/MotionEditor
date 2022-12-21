@@ -207,7 +207,11 @@ void CMesh::Draw(void)
 
 	//メッシュフィールドの描画       
 	pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLESTRIP,				//メッシュフィールドの形
-		0, 0, MESHFIELD_VERTEX_NUM, 0, MESHFIELD_PRIMITIVE_NUM);	//頂点の開始場所
+		0,
+		0,
+		MESHFIELD_VERTEX_NUM,
+		0,
+		MESHFIELD_PRIMITIVE_NUM);	//頂点の開始場所
 
 	//テクスチャの解除
 	pDevice->SetTexture(0, NULL);

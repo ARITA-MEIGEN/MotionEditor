@@ -35,6 +35,7 @@ int g_nCountFPS;
 #endif // _DEBUGgf
 
 CApplication*pApplication;
+
 //=============================================================================
 // メイン関数
 //=============================================================================
@@ -82,6 +83,24 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpC
 		hInstance,
 		NULL);
 
+
+	// Setup Dear ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	
+	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+	// Setup Dear ImGui style
+	ImGui::StyleColorsDark();
+	//ImGui::StyleColorsLight();
+
+	ImFontConfig config;
+	config.MergeMode = true;
+	//Unicodeじゃないから日本語にできないっぽい
+	io.Fonts->AddFontFromFileTTF(IMGUI_FONT_PASS, 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());	
+
 	//初期化処理
 	if (FAILED(pApplication->Init(hWnd,TRUE, hInstance)))
 	{
@@ -104,7 +123,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpC
 	UpdateWindow(hWnd);
 
 	MSG msg;
-
 	// メッセージループ
 	while (true)
 	{
@@ -136,6 +154,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpC
 
 			if ((dwCurrentTime - dwExecLastTime) >= (1000 / 60))
 			{ // 1/60秒経過
+
 				// 現在の時間を保存
 				dwExecLastTime = dwCurrentTime;
 
@@ -144,15 +163,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpC
 
 				// 描画処理
 				pApplication->Draw();
-
+				
 #ifdef _DEBUG
 				dwFrameCount++;
 #endif // _DEBUG
 			}
 		}
 	}
-	
 	// 終了処理
+	ImGui_ImplDX9_Shutdown();	//ImGui
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+
 	pApplication->Uninit();
 
 	// ウィンドウクラスの登録を解除
@@ -163,12 +185,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpC
 
 	return (int)msg.wParam;
 }
+// Forward declare message handler from imgui_impl_win32.cpp
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 //=============================================================================
 // ウインドウプロシージャ
 //=============================================================================
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam))
+		return true;
+
 	switch (uMsg)
 	{
 	case WM_CREATE:
@@ -184,8 +211,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case VK_ESCAPE: // [ESC]キーが押された
 			// ウィンドウを破棄
 			DestroyWindow(hWnd);
-
-
 			break;
 		}
 		break;

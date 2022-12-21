@@ -29,6 +29,7 @@ public:
 	 void DrawFPS();
 	 LPDIRECT3DDEVICE9 GetDevice(void);/* {return g_pD3DDevice}*/
 
+
 private:
 	//メンバ変数
 	LPDIRECT3D9 g_pD3D;								// Direct3Dオブジェクト

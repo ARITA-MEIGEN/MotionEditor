@@ -13,7 +13,7 @@
 #include"Mesh.h"
 #include"Model.h"
 #include"Game.h"
-#include"Line.h"
+#include"Collision.h"
 
 //マクロ定義
 #define PLAYER_SPEED	(1.0f)	//移動速度
@@ -88,6 +88,9 @@ HRESULT CPlayer::Init()
 	//回転マトリックスの初期化
 	//D3DXMatrixIdentity(&m_mtxRot);
 
+	m_AxisBox=CCollision::Create(m_pos);						//押し出し判定(プレイヤーの軸)
+
+
 	return S_OK;
 }
 
@@ -112,13 +115,15 @@ void CPlayer::Uninit(void)
 //===========================
 void CPlayer::Update(void)
 {
+	DrawCollision();
+
 	if (m_bPlay == true)
 	{
 		m_posold = m_pos;		//前回の位置の保存
 		m_pos += m_move;		//位置の更新
 		m_move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		//位置の更新
 
-		if (ControlPlayer() == true)		//操作
+		if (ControlPlayer() == true)				//操作
 		{
 			//m_pState = P_STAND;	//操作されていない場合ニュートラルに
 		}
@@ -128,17 +133,16 @@ void CPlayer::Update(void)
 			m_pos.y = CGame::GetMesh()->Collision(m_pos);
 		}
 
-
 		CDebugProc::Print("現在のモード:PLAY");
 
 		MotionManager();
 
 		CDebugProc::Print("現在のモード:%d　", (int)m_pState);
 	}
-
-	if (m_bPlay == false)
+	else 
 	{
 		EditMode();
+		PlayerStateDraw();
 	}
 
 	if (CApplication::GetInputKeyboard()->GetTrigger(DIK_F2))
@@ -146,9 +150,7 @@ void CPlayer::Update(void)
 		m_bPlay = !m_bPlay;
 	}
 
-
 	CDebugProc::Print("現在のプレイヤーの座標:%f %f %f", m_pos.x, m_pos.y, m_pos.z);
-
 }
 
 //===========================
@@ -169,11 +171,11 @@ void CPlayer::Draw(void)
 	D3DXMatrixIdentity(&m_mtxWorld);
 
 	//パーツのモデルの向きを反映
-	D3DXMatrixRotationYawPitchRoll(&mtxRot, m_rot.y, m_rot.x, m_rot.z);
+	D3DXMatrixRotationYawPitchRoll(&mtxRot, m_rot.y+ m_TempRot.y, m_rot.x + m_TempRot.x, m_rot.z + m_TempRot.z);
 	D3DXMatrixMultiply(&m_mtxWorld, &m_mtxWorld, &mtxRot);
 
 	//パーツのモデルの位置を反映
-	D3DXMatrixTranslation(&mtxTrans, m_pos.x, m_pos.y, m_pos.z);
+	D3DXMatrixTranslation(&mtxTrans, m_pos.x + m_TempPos.x, m_pos.y + m_TempPos.y, m_pos.z + m_TempPos.z);
 	D3DXMatrixMultiply(&m_mtxWorld, &m_mtxWorld, &mtxTrans);
 
 	//Shadow();
@@ -539,8 +541,8 @@ void CPlayer::WriteMotion(int nowmotion)
 //===========================
 void CPlayer::MotionPlayer(int nNumber)
 {
-	D3DXVECTOR3 pos, rot, fDiffPos, fDiffRot;
-	D3DXVECTOR3 fRelaPos, fRelaRot;		//1フレームごとの移動量
+	D3DXVECTOR3 pos, rot, DiffPos, DiffRot;
+	D3DXVECTOR3 RelaPos, RelaRot;		//1フレームごとの移動量
 	CDebugProc::Print("現在のキー:%d", m_nCurrentKey);
 	CDebugProc::Print("現在のフレーム:%d", m_MotionCnt);
 
@@ -567,7 +569,7 @@ void CPlayer::MotionPlayer(int nNumber)
 			{
 				if (m_nCurrentKey == m_apMotion[nNumber].nNumKey - 1&& m_apMotion[nNumber].bLoop == true)
 				{//ループする場合最初のモーションに移行する
-					fDiffPos = D3DXVECTOR3(
+					DiffPos = D3DXVECTOR3(
 						m_apMotion[nNumber].aModelKey[0].aKey[i].fPosX - 
 						m_apMotion[nNumber].aModelKey[m_nCurrentKey].aKey[i].fPosX,
 
@@ -576,7 +578,7 @@ void CPlayer::MotionPlayer(int nNumber)
 
 						m_apMotion[nNumber].aModelKey[0].aKey[i].fPosZ - m_apMotion[nNumber].aModelKey[m_nCurrentKey].aKey[i].fPosZ);	//差分の取得
 
-					fDiffRot = D3DXVECTOR3(
+					DiffRot = D3DXVECTOR3(
 						m_apMotion[nNumber].aModelKey[0].aKey[i].fRotX - 
 						m_apMotion[nNumber].aModelKey[m_nCurrentKey].aKey[i].fRotX,
 
@@ -593,7 +595,7 @@ void CPlayer::MotionPlayer(int nNumber)
 					{//位置座標の設定しなおし
 						PlayFirstMotion();
 					}
-					fDiffPos = D3DXVECTOR3(//座標差分の取得
+					DiffPos = D3DXVECTOR3(//座標差分の取得
 						m_apMotion[nNumber].aModelKey[m_nCurrentKey + 1].aKey[i].fPosX - 
 						m_apMotion[nNumber].aModelKey[m_nCurrentKey].aKey[i].fPosX,
 
@@ -603,7 +605,7 @@ void CPlayer::MotionPlayer(int nNumber)
 						m_apMotion[nNumber].aModelKey[m_nCurrentKey + 1].aKey[i].fPosZ -
 						m_apMotion[nNumber].aModelKey[m_nCurrentKey].aKey[i].fPosZ);	
 
-					fDiffRot = D3DXVECTOR3(//向き差分の取得
+					DiffRot = D3DXVECTOR3(//向き差分の取得
 						m_apMotion[nNumber].aModelKey[m_nCurrentKey + 1].aKey[i].fRotX -
 						m_apMotion[nNumber].aModelKey[m_nCurrentKey].aKey[i].fRotX,
 
@@ -615,12 +617,12 @@ void CPlayer::MotionPlayer(int nNumber)
 				}
 
 				//位置
-				fRelaPos = fDiffPos / m_apMotion[nNumber].aModelKey[m_nCurrentKey].nFrame;		//相対値
-				fRelaRot = fDiffRot / m_apMotion[nNumber].aModelKey[m_nCurrentKey].nFrame;
+				RelaPos = DiffPos / m_apMotion[nNumber].aModelKey[m_nCurrentKey].nFrame;		//相対値
+				RelaRot = DiffRot / m_apMotion[nNumber].aModelKey[m_nCurrentKey].nFrame;
 
 				//キーの設定
-				pos = fRelaPos + m_apModel[i]->GetPos();
-				rot = fRelaRot + m_apModel[i]->GetRot();
+				pos = RelaPos + m_apModel[i]->GetPos();
+				rot = RelaRot + m_apModel[i]->GetRot();
 
 				//位置の設定
 				m_apModel[i]->SetPos(pos);
@@ -705,19 +707,19 @@ void CPlayer::EditMode()
 		m_apModel[i]->SetPos(D3DXVECTOR3(
 			m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[i].fPosX,
 			m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[i].fPosY,
-			m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[i].fPosZ) + m_apModel[i]->GetDPos());	//初期位置の設定
+			m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[i].fPosZ) + m_apModel[i]->GetDPos() 
+			+ m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[i].fTempPos);	//初期位置の設定
 
 		m_apModel[i]->SetRot(D3DXVECTOR3(
 			m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[i].fRotX,
 			m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[i].fRotY,
-			m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[i].fRotZ) + m_apModel[i]->GetDRot());	//差分の取得
+			m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[i].fRotZ) + m_apModel[i]->GetDRot() 
+			+ m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[i].fTempRot);	//差分の取得
 	}
 
+	
+
 	CDebugProc::Print("現在のモード:EDIT");
-
-	CDebugProc::Print("現在再生されてるモーション 3/4:%d　", (int)m_pState);
-	CDebugProc::Print("現在のキー 5/6:%d　", m_nKEYData);
-
 	char* cNowmodel;
 	for (int i = 0; i < NUM_PARTS; i++)
 	{
@@ -746,62 +748,32 @@ void CPlayer::EditMode()
 			m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[i].fRotZ);
 	}
 
-	CDebugProc::Print("位置の設定 X:Y/T Y:H/G Z:N/B");
-	CDebugProc::Print("角度の設定 X:NUM8/NUM7 Y:NUM5/NUM4 Z:NUM2/NUM1");
+	//CDebugProc::Print("位置の設定 X:Y/T Y:H/G Z:N/B");
+	//CDebugProc::Print("角度の設定 X:NUM8/NUM7 Y:NUM5/NUM4 Z:NUM2/NUM1");
 
-	//X座標
-	m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fPosX = 
-		State<float, int>(m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fPosX, SINGLE_STA, HOLD_STA,DIK_Y, DIK_T);
+	////X座標
+	//m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fPosX = 
+	//	State<float, int>(m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fPosX, SINGLE_STA, HOLD_STA,DIK_Y, DIK_T);
 
-	//Y座標
-	m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fPosY = 
-		State<float, int>(m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fPosY, SINGLE_STA, HOLD_STA, DIK_H, DIK_G);
+	////Y座標
+	//m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fPosY = 
+	//	State<float, int>(m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fPosY, SINGLE_STA, HOLD_STA, DIK_H, DIK_G);
 
-	//Y座標
-	m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fPosZ = 
-		State<float, int>(m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fPosZ, SINGLE_STA, HOLD_STA, DIK_N, DIK_B);
+	////Y座標
+	//m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fPosZ = 
+	//	State<float, int>(m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fPosZ, SINGLE_STA, HOLD_STA, DIK_N, DIK_B);
 
-	//X方向
-	m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fRotX = 
-		State<float, int>(m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fRotX, SINGLE_STA, HOLD_STA,DIK_NUMPAD8, DIK_NUMPAD7);
+	////X方向
+	//m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fRotX = 
+	//	State<float, int>(m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fRotX, SINGLE_STA, HOLD_STA,DIK_NUMPAD8, DIK_NUMPAD7);
 
-	//Y方向
-	m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fRotY =
-		State<float, int>(m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fRotY, SINGLE_STA, HOLD_STA, DIK_NUMPAD5, DIK_NUMPAD4);
+	////Y方向
+	//m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fRotY =
+	//	State<float, int>(m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fRotY, SINGLE_STA, HOLD_STA, DIK_NUMPAD5, DIK_NUMPAD4);
 
-	//Z方向
-	m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fRotZ = 
-		State<float, int>(m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fRotZ, SINGLE_STA, HOLD_STA, DIK_NUMPAD2, DIK_NUMPAD1);
-
-	if (CApplication::GetInputKeyboard()->GetTrigger(DIK_4))
-	{//再生モーション変更
-		m_pState = static_cast<PLAYER_STATE>(m_pState + 1);
-
-		if (m_pState == P_MAX)
-		{//最大値の場合最低値に戻す
-			m_pState = P_STAND;
-		}
-	}
-	else if (CApplication::GetInputKeyboard()->GetTrigger(DIK_3))
-	{//再生モーション変更
-		if (m_pState != P_STAND)
-		{
-			m_pState = static_cast<PLAYER_STATE>(m_pState - 1);
-		}
-		else
-		{//最低値の場合最大値に戻す
-			m_pState = static_cast<PLAYER_STATE>(P_MAX - 1);
-		}
-	}
-
-	if (CApplication::GetInputKeyboard()->GetTrigger(DIK_9))
-	{
-		m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].Collisionbox[m_apMotion[m_pState].aModelKey[m_nKEYData].nNumCollision]->Create(
-			m_apModel[m_nEditModel]->GetDPos()+ m_apModel[m_nEditModel]->GetPos(),
-			m_apModel[m_nEditModel]->GetDRot()+ m_apModel[m_nEditModel]->GetRot());
-		m_apMotion[m_pState].aModelKey[m_nKEYData].nNumCollision++;
-	}
-
+	////Z方向
+	//m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fRotZ = 
+	//	State<float, int>(m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fRotZ, SINGLE_STA, HOLD_STA, DIK_NUMPAD2, DIK_NUMPAD1);
 
 	//キーの変更
 	m_nKEYData = State<int, int>(m_nKEYData, 1, 1, DIK_6, DIK_5);
@@ -869,10 +841,306 @@ void CPlayer::Normalize(int number)
 }
 
 //===========================
-//当たり判定の設定
+//プレイヤーの情報の設定(IMGUI)
 //===========================
-void CPlayer::SetCollision()
+void CPlayer::PlayerStateDraw()
 {
+	// フレーム生成
+	ImGui_ImplDX9_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
 
+	ImGui::Begin(u8"プレイヤーの情報");	//開始
+
+	ImGui::SliderInt(u8"モデル選択", &m_nEditModel, 0, NUM_PARTS - 1);						//編集するモデル
+
+	if (ImGui::CollapsingHeader(u8"プレイヤーの座標"))//タブ
+	{//プレイヤーの座標
+		ImGui::InputFloat("X", &m_TempPos.x, 0.1f, 0.1f, "%.2f");
+		ImGui::InputFloat("Y", &m_TempPos.y, 0.1f, 0.1f, "%.2f");
+		ImGui::InputFloat("Z", &m_TempPos.z, 0.1f, 0.1f, "%.2f");
+		if (ImGui::Button("RESET"))
+			m_pos = D3DXVECTOR3(0.f, 0.f, 0.f);
+
+		if (ImGui::Button("SET"))
+			m_pos += m_TempPos, ZeroMemory(m_TempPos, sizeof(D3DXVECTOR3));
+	}
+	if (ImGui::CollapsingHeader(u8"プレイヤーの回転"))//タブ
+	{//プレイヤーの座標
+		ImGui::InputFloat("X", &m_TempRot.x, 0.01f, 0.01f, "%.2f");
+		ImGui::InputFloat("Y", &m_TempRot.y, 0.01f, 0.01f, "%.2f");
+		ImGui::InputFloat("Z", &m_TempRot.z, 0.01f, 0.01f, "%.2f");
+
+		if (ImGui::Button("RESET"))
+			m_rot = D3DXVECTOR3(0.f, 0.f, 0.f);
+
+		if (ImGui::Button("SET"))
+			m_rot += m_TempRot, ZeroMemory(m_TempRot, sizeof(D3DXVECTOR3));
+	}
+	if (ImGui::CollapsingHeader(u8"プレイヤーの押し出し判定の設定"))
+	{
+		D3DXVECTOR3 axispos = m_AxisBox->GetPos();
+		D3DXVECTOR3 axissiz= m_AxisBox->GetSiz();
+		ImGui::DragFloat3("Pos", axispos, -2.0f, 2.0f);
+		ImGui::DragFloat3("Siz", axissiz, -2.0f, 2.0f);
+		m_AxisBox->SetPos(axispos);
+		m_AxisBox->SetSiz(axissiz);
+		bool bSave = false;
+		if (ImGui::Button("Save"))
+			bSave = true;
+		if (bSave == true)
+		{
+			FILE* fp = fopen("data/TXT/SaveAxis.txt", "w");
+			//ファイル読み込み 
+			fprintf(fp, "軸の判定\n\n");
+
+			fprintf(fp, "	POS = %.2f %.2f %.2f \n",
+				m_AxisBox->GetPos().x,
+				m_AxisBox->GetPos().y,
+				m_AxisBox->GetPos().z);
+			fprintf(fp, "	SIZ = %.2f %.2f %.2f \n",
+				m_AxisBox->GetSiz().x,
+				m_AxisBox->GetSiz().y,
+				m_AxisBox->GetSiz().z);
+			fclose(fp);
+			bSave = false;
+		}
+	}
+
+	if (ImGui::CollapsingHeader(u8"モーションの設定"))
+	{
+		ImGui::SliderInt(u8"再生するモーション", (int*)&m_pState, 0, P_MAX - 1);					//モーション番号
+		ImGui::SliderInt(u8"再生するキー", &m_nKEYData, 0, m_apMotion[m_pState].nNumKey - 1);	//キーの番号
+		ImGui::SliderInt(u8"現在のフレーム",&m_frame,0, m_apMotion[m_pState].aModelKey[m_nKEYData].nFrame);
+		if (ImGui::TreeNode(u8"モデルの座標"))
+		{ // モデルの座標編集
+
+			ImGui::InputFloat("PosX", &m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fTempPos.x, 0.1f, 0.1f, "%.2f");
+			ImGui::InputFloat("PosY", &m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fTempPos.y, 0.1f, 0.1f, "%.2f");
+			ImGui::InputFloat("PosZ", &m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fTempPos.z, 0.1f, 0.1f, "%.2f");
+			ImGui::Text("Rot: (%.2f,%.2f,%.2f)",
+				m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fTempPos.x + m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fPosX,
+				m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fTempPos.y + m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fPosY,
+				m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fTempPos.z + m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fPosZ);
+
+			if (ImGui::Button("RESET"))
+				ZeroMemory(m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fTempPos, sizeof(D3DXVECTOR3));
+
+			if (ImGui::Button("SET"))
+				m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fPosX +=
+				m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fTempPos.x,
+				m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fPosY +=
+				m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fTempPos.y,
+				m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fPosZ +=
+				m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fTempPos.z,
+				ZeroMemory(m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fTempPos, sizeof(D3DXVECTOR3));
+
+			ImGui::TreePop();
+			ImGui::Separator();
+		}
+		if (ImGui::TreeNode(u8"モデルの回転"))
+		{ // モデルの座標編集
+			ImGui::InputFloat("RotX", &m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fTempRot.x, 0.01f, 0.01f, "%.2f");
+			ImGui::InputFloat("RotY", &m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fTempRot.y, 0.01f, 0.01f, "%.2f");
+			ImGui::InputFloat("RotZ", &m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fTempRot.z, 0.01f, 0.01f, "%.2f");
+			ImGui::Text("Rot: (%.2f,%.2f,%.2f)",
+				m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fTempRot.x+ m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fRotX,
+				m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fTempRot.y+ m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fRotY,
+				m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fTempRot.z+ m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fRotZ);
+
+
+			if (ImGui::Button("RESET"))
+				ZeroMemory(m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fTempRot, sizeof(D3DXVECTOR3));
+
+			if (ImGui::Button("SET"))//仮設定の数値を代入
+				m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fRotX +=
+				m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fTempRot.x,
+				m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fRotY +=
+				m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fTempRot.y,
+				m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fRotZ +=
+				m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fTempRot.z,
+				ZeroMemory(m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fTempRot, sizeof(D3DXVECTOR3));
+
+			ImGui::TreePop();
+			ImGui::Separator();
+		}
+		if (ImGui::TreeNode(u8"当たり判定の設定"))
+		{
+			if (m_apMotion[m_pState].aModelKey[m_nKEYData].nNumCollision < MAX_COLLISION-1)
+			{
+				D3DXVECTOR3 pos =
+				D3DXVECTOR3(m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fPosX,
+							m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fPosY,
+							m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[m_nEditModel].fPosZ);
+				if (ImGui::Button("Create"))//判定生成
+					m_apMotion[m_pState].aModelKey[m_nKEYData].Collision[m_apMotion[m_pState].aModelKey[m_nKEYData].nNumCollision]
+					= CCollision::Create(m_apModel[m_nEditModel]->GetPos()+pos),				//当たり判定の生成
+					m_apMotion[m_pState].aModelKey[m_nKEYData].nNumCollision++;					//最大数をインクリメント
+			}
+			if (m_apMotion[m_pState].aModelKey[m_nKEYData].nNumCollision > 0)
+			{//当たり判定が存在する場合
+				if (ImGui::Button("Delete"))//判定の削除
+					m_apMotion[m_pState].aModelKey[m_nKEYData].Collision[m_apMotion[m_pState].aModelKey[m_nKEYData].nNumCollision - 1]->Uninit(),
+					//m_apMotion[m_pState].aModelKey[m_nKEYData].Collision[m_apMotion[m_pState].aModelKey[m_nKEYData].nNumCollision - 1] = nullptr,
+					m_apMotion[m_pState].aModelKey[m_nKEYData].nNumCollision--;				//最大数をインクリメント
+
+				ImGui::SliderInt("CollisionNumber", &m_nSelectCollison, 0, m_apMotion[m_pState].aModelKey[m_nKEYData].nNumCollision - 1);	//モーション番号
+				if (m_apMotion[m_pState].aModelKey[m_nKEYData].nNumCollision > 0)
+				{//当たり判定が存在する場合
+					if (ImGui::TreeNode("Collision"))
+					{ // モデルの座標編集
+						
+						m_ColiPos = m_apMotion[m_pState].aModelKey[m_nKEYData].Collision[m_nSelectCollison]->GetPos();
+						m_siz = m_apMotion[m_pState].aModelKey[m_nKEYData].Collision[m_nSelectCollison]->GetSiz();
+
+						ImGui::InputFloat3("Pos", m_ColiPos, "%.2f");				//モーション番号
+						ImGui::InputFloat3("Siz", m_siz, "%.2f");					//モーション番号
+
+						m_apMotion[m_pState].aModelKey[m_nKEYData].Collision[m_nSelectCollison]->SetPos(m_ColiPos);		//情報更新
+						m_apMotion[m_pState].aModelKey[m_nKEYData].Collision[m_nSelectCollison]->SetSiz(m_siz);
+
+						bool bSave = false;
+						if (ImGui::Button("Save"))
+							bSave = true;
+						if (bSave == true)
+						{
+							FILE* fp = fopen("data/TXT/SaveCollision.txt", "w");
+							//ファイル読み込み 
+							for (int i = 0; i < m_apMotion[m_pState].aModelKey[m_nKEYData].nNumCollision; i++)
+							{
+								fprintf(fp, "%d番目の判定\n\n",i);
+
+								fprintf(fp, "	POS = %.2f %.2f %.2f \n",
+									m_apMotion[m_pState].aModelKey[m_nKEYData].Collision[m_nSelectCollison]->GetPos().x,
+									m_apMotion[m_pState].aModelKey[m_nKEYData].Collision[m_nSelectCollison]->GetPos().y,
+									m_apMotion[m_pState].aModelKey[m_nKEYData].Collision[m_nSelectCollison]->GetPos().z);
+								fprintf(fp, "	SIZ = %.2f %.2f %.2f \n",
+									m_apMotion[m_pState].aModelKey[m_nKEYData].Collision[m_nSelectCollison]->GetSiz().x,
+									m_apMotion[m_pState].aModelKey[m_nKEYData].Collision[m_nSelectCollison]->GetSiz().y,
+									m_apMotion[m_pState].aModelKey[m_nKEYData].Collision[m_nSelectCollison]->GetSiz().z);
+							}
+							fclose(fp);
+							bSave = false;
+						}
+
+						ImGui::TreePop();
+						ImGui::Separator();
+					}
+				}
+
+			}
+			ImGui::TreePop();
+			ImGui::Separator();
+		}
+	}
+	SetFrame();
+
+}
+
+//===========================
+//当たり判定を表示するかどうか
+//===========================
+void CPlayer::DrawCollision()
+{
+	//当たり判定の表示
+	for (int i = 0; i < P_MAX; i++)
+	{
+		for (int k = 0; k < m_apMotion[i].nNumKey; k++)
+		{
+			for (int j = 0; j < m_apMotion[i].aModelKey[k].nNumCollision; j++)
+			{//違うモーションの当たり判定をオフにする
+				if (m_pState == i&&m_nKEYData == k)
+				{//キーとモーションが一致している場合のみ表示
+					if (m_apMotion[i].aModelKey[k].Collision[j] != nullptr)
+					{
+						m_apMotion[i].aModelKey[k].Collision[j]->SetUse(true);
+					}
+				}
+				else
+				{
+					if (m_apMotion[i].aModelKey[k].Collision[j] != nullptr)
+					{
+						m_apMotion[i].aModelKey[k].Collision[j]->SetUse(false);
+					}
+				}
+			}
+		}
+	}
+}
+
+//===========================
+//フレーム設定
+//===========================
+void CPlayer::SetFrame()
+{
+	D3DXVECTOR3 RelaPos, RelaRot;		//1フレームごとの移動量
+	D3DXVECTOR3 pos, rot, DiffPos, DiffRot;
+
+	for (int i = 0; i < NUM_PLAYERPARTS; i++)
+	{//パーツ全部のモーション再生
+		if (m_apModel[i] != nullptr)
+		{
+			if (m_nKEYData == m_apMotion[m_pState].nNumKey - 1 && m_apMotion[m_pState].bLoop == true)
+			{//ループする場合最初のモーションに移行する
+				DiffPos = D3DXVECTOR3(
+					m_apMotion[m_pState].aModelKey[0].aKey[i].fPosX -
+					m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[i].fPosX,
+
+					m_apMotion[m_pState].aModelKey[0].aKey[i].fPosY -
+					m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[i].fPosY,
+
+					m_apMotion[m_pState].aModelKey[0].aKey[i].fPosZ - m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[i].fPosZ);	//差分の取得
+
+				DiffRot = D3DXVECTOR3(
+					m_apMotion[m_pState].aModelKey[0].aKey[i].fRotX -
+					m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[i].fRotX,
+
+					m_apMotion[m_pState].aModelKey[0].aKey[i].fRotY -
+					m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[i].fRotY,
+
+					m_apMotion[m_pState].aModelKey[0].aKey[i].fRotZ -
+					m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[i].fRotZ);	//差分の取得
+			}
+
+			else
+			{
+				if (m_nKEYData == 0 && m_frame == 0)
+				{//位置座標の設定しなおし
+					PlayFirstMotion();
+				}
+				DiffPos = D3DXVECTOR3(//座標差分の取得
+					m_apMotion[m_pState].aModelKey[m_nKEYData + 1].aKey[i].fPosX -
+					m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[i].fPosX,
+
+					m_apMotion[m_pState].aModelKey[m_nKEYData + 1].aKey[i].fPosY -
+					m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[i].fPosY,
+
+					m_apMotion[m_pState].aModelKey[m_nKEYData + 1].aKey[i].fPosZ -
+					m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[i].fPosZ);
+
+				DiffRot = D3DXVECTOR3(//向き差分の取得
+					m_apMotion[m_pState].aModelKey[m_nKEYData + 1].aKey[i].fRotX -
+					m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[i].fRotX,
+
+					m_apMotion[m_pState].aModelKey[m_nKEYData + 1].aKey[i].fRotY -
+					m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[i].fRotY,
+
+					m_apMotion[m_pState].aModelKey[m_nKEYData + 1].aKey[i].fRotZ -
+					m_apMotion[m_pState].aModelKey[m_nKEYData].aKey[i].fRotZ);
+			}
+		}
+
+		//位置
+		RelaPos = DiffPos / m_apMotion[m_pState].aModelKey[m_nKEYData].nFrame;		//相対値
+		RelaRot = DiffRot / m_apMotion[m_pState].aModelKey[m_nKEYData].nFrame;
+
+		//キーの設定
+		pos = RelaPos*m_frame + m_apModel[i]->GetPos();
+		rot = RelaRot*m_frame + m_apModel[i]->GetRot();
+
+		//位置の設定
+		m_apModel[i]->SetPos(pos);
+		m_apModel[i]->SetRot(rot);
+	}
 }
 

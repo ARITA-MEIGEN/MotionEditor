@@ -18,6 +18,7 @@
 #include"Light.h"
 #include"Shadow.h"
 #include"Fade.h"
+#include"Collision.h"
 
 //Ã“Iƒƒ“ƒo•Ï”
 CPlayer*CGame::m_pPlayer = nullptr;

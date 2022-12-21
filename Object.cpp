@@ -85,7 +85,7 @@ void CObject::UpdateAll()
 
 		CObject*pObject = m_pTop[i];
 
-		while (pObject)
+		while (pObject!=nullptr)
 		{
 			CObject*pObjectNext = pObject->m_pNext;
 			if (pObject->bDead == false)
