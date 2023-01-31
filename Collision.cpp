@@ -51,6 +51,33 @@ HRESULT CCollision::Init(void)
 	m_rot = D3DXVECTOR3(0.0f,0.f,0.f);
 	m_width = D3DXVECTOR3(50.0f, 50.f, 50.f);
 
+	switch (m_Colltype)
+	{//種類に応じて色の設定
+	case CCollision::COLLI_AXIS:
+		m_col = D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f);
+		break;
+
+	case CCollision::COLLI_DAMAGE:
+		m_col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+		break;
+
+	case CCollision::COLLI_SLOW:
+		m_col = D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f);
+		break;
+
+	case CCollision::COLLI_HURT:
+		m_col = D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f);
+		break;
+
+	case CCollision::COLLI_HURTSLOW:
+		m_col = D3DXCOLOR(0.0f, 1.0f, 1.0f, 1.0f);
+		break;
+
+	default:
+		m_col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		break;
+	}
+
 	//頂点座標へのポインタ
 	VERTEX_3D*pVtx = NULL;
 
@@ -64,7 +91,7 @@ HRESULT CCollision::Init(void)
 		pVtx[i].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
 
 		//色の設定
-		pVtx[i].col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+		pVtx[i].col = m_col;
 	}
 
 	//頂点座標の設定
@@ -146,7 +173,6 @@ void CCollision::Update(void)
 		pVtx[22].pos = D3DXVECTOR3(-m_width.x / 2, m_width.y / 2, -m_width.z / 2);
 		pVtx[23].pos = D3DXVECTOR3(-m_width.x / 2, -m_width.y / 2, -m_width.z / 2);
 
-
 		//頂点バッファをアンロック
 		m_pVtxBuff->Unlock();
 	}
@@ -197,16 +223,17 @@ void CCollision::Draw(void)
 //=====================
 //生成
 //=====================
-CCollision* CCollision::Create(D3DXVECTOR3 pos)
+CCollision* CCollision::Create(D3DXVECTOR3 pos, COLLISION type)
 {
-	CCollision*pLine = new CCollision();
+	CCollision*pCollision = new CCollision();
 
-	if (pLine != nullptr)
+	if (pCollision != nullptr)
 	{
-		pLine->Init();
-		pLine->m_pos = pos;
-		pLine->bUse = true;
+		pCollision->m_Colltype = type;
+		pCollision->Init();
+		pCollision->m_pos = pos;
+		pCollision->bUse = true;
 	}
 
-	return pLine;
+	return pCollision;
 }

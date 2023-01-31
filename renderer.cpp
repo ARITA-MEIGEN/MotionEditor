@@ -89,6 +89,10 @@ HRESULT CRenderer::Init(HWND hWnd, bool bWindow)
 	ImGui_ImplWin32_Init(hWnd);
 	ImGui_ImplDX9_Init(g_pD3DDevice);	//レンダラーの生成後に作る
 
+										// フレーム生成
+	ImGui_ImplDX9_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+
 	// レンダーステートの設定
 	g_pD3DDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 	g_pD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
@@ -177,8 +181,6 @@ void  CRenderer::Draw()
 
 		//デバッグ情報の描画
 		CApplication::GetDebugProc()->Draw();
-
-		ImGui::End();	//終了
 
 		// Rendering
 		ImGui::EndFrame();

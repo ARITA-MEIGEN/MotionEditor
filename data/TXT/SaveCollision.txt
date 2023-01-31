@@ -1,4 +1,8 @@
-0”Ô–Ú‚Ì”»’è
+#1”Ô–Ú‚Ì”»’è
 
-	POS = 0.00 38.40 0.00 
-	SIZ = 30.00 50.00 30.00 
+	COLLISIONSET
+		STARTFRAME = 0
+		ENDFRAME = 8
+		POS = -20.00 45.00 -3.00 
+		SIZ = 28.00 10.00 11.00 
+	END_COLLISIONSET

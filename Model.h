@@ -30,9 +30,9 @@ public:
 	void		Update(void);
 	void		Draw(D3DXMATRIX pMtx);
 	static		CModel*Create();
-	void		Shadow();
-	void		Siz();
-	void		SetModel(char* Filename);
+	void		Shadow();						//影(使わない)
+	void		Siz();							//サイズ設定
+	void		SetModel(char* Filename);		//モデルの設定
 	void		SetParent(CModel*pModel) ;
 	CModel*		GetParent();
 	D3DXMATRIX	GetMtx();

@@ -22,6 +22,7 @@ class CCollision;
 //マクロ定義
 #define MAX_MOTION		(20)	//モーションの数
 #define MAX_KEY			(60)	//キーの総数
+#define MAX_FRAME		(120)	//フレームの最大数
 #define NUM_PARTS		(14)	//パーツの数
 #define HOLD_TIME		(30)	//長押しして処理が通るまでの時間
 #define SINGLE_STA		(0.01f)	//単体で動かす量
@@ -56,6 +57,8 @@ public:
 		int nFrame;								//再生時間
 		CCollision* Collision[MAX_COLLISION];	//当たり判定
 		int nNumCollision;						//1つのキーの当たり判定の数
+		CCollision* HurtCol[MAX_COLLISION];		//やられ判定
+		int nNumHurtCol;						//1つのキーの当たり判定の数
 	};
 
 	struct MOTION_SET
@@ -63,23 +66,42 @@ public:
 		KEY_SET	aModelKey[MAX_KEY];		//キーの総数分持つ
 		int		nNumKey;				//キーの総数(ファイルで読み込む)
 		bool	bLoop;					//ループするかどうか
+		bool	bControl;				//操作可能なモーションかどうか
+		int		nCancelFrame;			//技のキャンセル猶予
+		bool	bAtk;					//攻撃モーションかどうか(再生後にニュートラルに戻すかどうか)
 	};
 
-	enum PLAYER_STATE
+	enum PLAYER_MOTION
 	{
-		P_STAND,
-		P_CROUCH,
-		P_MOVE,
-		P_LATTACK_STAND,
-		P_LATTACK_CROUCH,
-		P_LATTACK_JUMP,
-		P_MATTACK_STAND,
-		P_MATTACK_CROUCH,
-		P_MATTACK_JUMP,
-		P_HATTACK_STAND,
-		P_HATTACK_CROUCH,
-		P_HATTACK_JUMP,
-		P_MAX
+		//地上
+		PM_ST_NEUTRAL,		//ニュートラル
+		PM_ST_MOVE,			//移動(しゃがみだけ無し)
+		PM_ST_DASH,			//前ダッシュ
+		PM_ST_BACKSTEP,		//バックステップ
+		PM_ST_GUARD,		//ガード
+		PM_ST_HIT,			//被弾
+		PM_ST_LATTACK,		//弱攻撃
+		PM_ST_MATTACK,		//中攻撃
+		PM_ST_HATTACK,		//強攻撃
+		//空中
+		PM_JP_NEUTRAL,		//垂直ジャンプ
+		PM_JP_MOVELEFT	,	//移動(しゃがみだけ無し)
+		PM_JP_MOVERIGHT,	//移動(しゃがみだけ無し)
+		PM_JP_DASH,			//前ダッシュ
+		PM_JP_GUARD,		//ガード
+		PM_JP_HIT,			//被弾
+		PM_JP_LATTACK,		//弱攻撃
+		PM_JP_MATTACK,		//中攻撃
+		PM_JP_HATTACK,		//強攻撃
+		//しゃがみ
+		PM_CR_NEUTRAL,		//ニュートラル
+		PM_CR_MOVE,			//移動(しゃがみだけ無し)
+		PM_CR_GUARD,		//ガード
+		PM_CR_HIT,			//被弾
+		PM_CR_LATTACK,		//弱攻撃
+		PM_CR_MATTACK,		//中攻撃
+		PM_CR_HATTACK,		//強攻撃
+		PM_MAX
 	};
 
 	explicit CPlayer(int nPriority = 3);
@@ -90,12 +112,11 @@ public:
 	void			Update(void)override;
 	void			Draw(void)override;
 	bool			ControlPlayer(void);			//プレイヤーの操作
-	static CPlayer*	Create();
-	D3DXMATRIX		GetMtx();
+	static CPlayer*	Create();						//プレイヤー生成
+	D3DXMATRIX		GetMtx();						//マトリックスの取得
 	void			ReadMotion();					//モーション読み込み
 	void			WriteMotion(int nowmotion);		//モーション書き出し
-	void			MotionPlayer(int nNumber);		//モーションの再生　引数は再生するモーションの番号
-	void			rolling();
+	void			rolling();						//回転のテスト
 	void			MotionManager();				//状態に合わせてモーション再生する
 	void			PlayFirstMotion();				//前と状態が違う場合のみ最初のモーションを設定する
 	void			EditMode();						//前と状態が違う場合のみ最初のモーションを設定する
@@ -103,12 +124,13 @@ public:
 	void			PlayerStateDraw();				//プレイヤーの情報の編集と表示(IMGUI)
 	void			DrawCollision();				//プレイヤーの情報の編集と表示(IMGUI)
 	void			SetFrame();						//フレーム応じてモーションの位置を表示する
-
+	void			SaveAxis();						//軸の判定を保存
+	void			SaveCollision();				//当たり判定の保存
 
 
 private:
 	CModel*			m_apModel[NUM_PLAYERPARTS];		//モデルのインスタンス
-	MOTION_SET		m_apMotion[MAX_MOTION];			//モーションの数だけ生成モーションの数->キーの総数->モデルの数
+	MOTION_SET		m_apMotion[PM_MAX];			//モーションの数だけ生成モーションの数->キーの総数->モデルの数
 	D3DXMATRIX		m_mtxWorld;						//ワールドマトリックス
 	D3DXVECTOR3		m_pos;							//位置
 	D3DXVECTOR3		m_rot;							//向き
@@ -116,9 +138,7 @@ private:
 	D3DXVECTOR3		m_posold;						//前回の位置
 	//CShadow*		m_Shadow;						//影
 	D3DXVECTOR3		m_rotDest;						//目的の角度の保存
-	int				m_MotionCnt;					//モーションカウンター
 	int				m_nNumKey;						//キーの総数
-	int				m_nCurrentKey;					//現在のキー番号
 	D3DXMATRIX		m_mtxRot;						//回転マトリックス(保存用)
 	D3DXQUATERNION	m_quat;							//クォータニオン
 	D3DXVECTOR3		m_vecAxis;						//回転軸
@@ -127,8 +147,8 @@ private:
 	char			m_nModelpass[255];
 	D3DXVECTOR3		m_movepos;
 	D3DXVECTOR3		m_moverot;
-	PLAYER_STATE	m_pState;
-	PLAYER_STATE	m_pStateOld;					//ひとつ前のモーション
+	PLAYER_MOTION	m_pMotion;						//モーション
+	PLAYER_MOTION	m_pMotionOld;					//ひとつ前のモーション
 	int				m_nowmotion;					//現在のモーション
 	int				m_nKEYData;						//現在データを表示するパーツ
 	bool			m_bPlay;						//再生モード
@@ -141,6 +161,11 @@ private:
 	D3DXVECTOR3		m_siz;
 	int				m_nSelectCollison;
 	CCollision* 	m_AxisBox;						//押し出し判定(プレイヤーの軸)
+	static int		m_snPlayernumber;				//プレイヤーの番号
+	int				m_nPlayernumber;				//プレイヤーの番号
+	KEY_SET			m_CopyKey;						//キーのコピー
+	CCollision*		m_CopyCollision[MAX_COLLISION];	//やられ判定のコピー
+	int				m_CopyColNumber;				//コピーするやられ判定の番号
 
 
 
