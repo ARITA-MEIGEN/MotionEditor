@@ -45,6 +45,11 @@ void CCamera::Init(void)
 	m_rot.x = atan2f((m_posV.y - m_posR.y), (m_posV.z - m_posR.z));
 	//m_fDistance=sqrtf(m_fDistance*m_fDistance+DISTANCE_Y);	
 	m_fDistance = sqrtf(DISTANCE_X + DISTANCE_Y + DISTANCE_Z);
+
+	m_posV = D3DXVECTOR3(-8.0f, 100.0f, 160.0f);
+	m_posR = D3DXVECTOR3(-20.0f, 58.0f, 15.0f);
+	m_rot = D3DXVECTOR3(1.8f, -3.0f, 0.0f);
+
 }
 
 //===========================

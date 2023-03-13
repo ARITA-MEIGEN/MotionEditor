@@ -66,9 +66,9 @@ void CLight::Init(void)
 	//ライトを有効にする
 	pDevice->LightEnable(0, TRUE);
 	//ライトを有効にする
-	pDevice->LightEnable(1, FALSE);
+	pDevice->LightEnable(1, TRUE);
 	//ライトを有効にする
-	pDevice->LightEnable(2, FALSE);
+	pDevice->LightEnable(2, TRUE);
 }
 //===========================
 //ライトの終了処理

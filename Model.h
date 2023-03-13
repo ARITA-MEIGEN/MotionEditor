@@ -49,6 +49,8 @@ public:
 	D3DXVECTOR3	GetDRot() { return m_DefaultRot; };					//初期角度を取得
 	void		SetCol(D3DXCOLOR col);
 	void		SetEmi(D3DXCOLOR col);								//発光の設定
+	void		SetDP(int dp) { dp = m_nDamagePoint; };				//ダメージ属性を設定
+	int			GetDP() { return m_nDamagePoint; };					//ダメージ属性を設定
 
 
 
@@ -75,6 +77,7 @@ private:
 
 	D3DXVECTOR3			m_TempPos;						//編集用の仮座標
 	D3DXVECTOR3			m_TempRot;						//編集用の仮座標
+	int					m_nDamagePoint;					//当たり判定の属性
 
 
 };

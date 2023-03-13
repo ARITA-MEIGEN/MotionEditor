@@ -69,6 +69,8 @@ public:
 		bool	bControl;				//操作可能なモーションかどうか
 		int		nCancelFrame;			//技のキャンセル猶予
 		bool	bAtk;					//攻撃モーションかどうか(再生後にニュートラルに戻すかどうか)
+		int		nHitStopTimer;			//ヒットストップの時間
+
 	};
 
 	enum PLAYER_MOTION
@@ -83,6 +85,8 @@ public:
 		PM_ST_LATTACK,		//弱攻撃
 		PM_ST_MATTACK,		//中攻撃
 		PM_ST_HATTACK,		//強攻撃
+		PM_ST_HURT,			//やられモーション
+
 		//空中
 		PM_JP_NEUTRAL,		//垂直ジャンプ
 		PM_JP_MOVELEFT	,	//移動(しゃがみだけ無し)
@@ -93,6 +97,8 @@ public:
 		PM_JP_LATTACK,		//弱攻撃
 		PM_JP_MATTACK,		//中攻撃
 		PM_JP_HATTACK,		//強攻撃
+		PM_JP_HURT,			//やられモーション
+
 		//しゃがみ
 		PM_CR_NEUTRAL,		//ニュートラル
 		PM_CR_MOVE,			//移動(しゃがみだけ無し)
@@ -101,6 +107,29 @@ public:
 		PM_CR_LATTACK,		//弱攻撃
 		PM_CR_MATTACK,		//中攻撃
 		PM_CR_HATTACK,		//強攻撃
+		PM_CR_HURT,			//やられモーション
+
+		//必殺技
+		PM_236L,			//弱波動
+		PM_236M,			//中波動
+		PM_236H,			//強波動
+
+		PM_214L,			//弱竜巻
+		PM_214M,			//中竜巻
+		PM_214H,			//強竜巻
+
+		PM_623L,			//弱昇竜
+		PM_623M,			//中昇竜
+		PM_623H,			//強昇竜
+
+		PM_ST_DIE,			//死
+		PM_CR_DIE,			//死
+		PM_JP_DIE,			//死
+
+		PM_DOWN,			//死亡&ダウン時モーション
+		PM_STANDUP,			//起き上がり
+		PM_FORWARDSLOW,		//前投げ
+		PM_BACKSLOW,		//後ろ投げ
 		PM_MAX
 	};
 
@@ -126,6 +155,7 @@ public:
 	void			SetFrame();						//フレーム応じてモーションの位置を表示する
 	void			SaveAxis();						//軸の判定を保存
 	void			SaveCollision();				//当たり判定の保存
+	void			SetHitBox();					//やられ判定の設定
 
 
 private:
@@ -159,7 +189,8 @@ private:
 	D3DXVECTOR3		m_TempRot;						//編集用の仮座標
 	D3DXVECTOR3		m_ColiPos;						//編集用の仮座標
 	D3DXVECTOR3		m_siz;
-	int				m_nSelectCollison;
+	int				m_nSelectCollison;				//選択している当たり判定の番号
+	int				m_nSelectHurt;					//選択しているやられ判定の番号
 	CCollision* 	m_AxisBox;						//押し出し判定(プレイヤーの軸)
 	static int		m_snPlayernumber;				//プレイヤーの番号
 	int				m_nPlayernumber;				//プレイヤーの番号
@@ -168,38 +199,38 @@ private:
 	int				m_CopyColNumber;				//コピーするやられ判定の番号
 
 
+	//使わねえ奴
 
-	//テンプレート関数宣言
-	template <typename T, typename U>
-	T State(T tar,T Tri ,T Hol, U Key,U KeyDown)
-	{//数値の上下を設定する関数
-		if (CApplication::GetInputKeyboard()->GetTrigger(Key))
-		{
-			tar += Tri;
-		}
-		else if (CApplication::GetInputKeyboard()->GetPress(Key))
-		{
-			m_nHold++;
-			if (m_nHold >= HOLD_TIME)
-			{
-				tar += Hol;
-			}
-		}
-		else if (CApplication::GetInputKeyboard()->GetTrigger(KeyDown))
-		{
-			tar -= Tri;
-		}
-		else if (CApplication::GetInputKeyboard()->GetPress(KeyDown))
-		{
-			m_nHold++;
-			if (m_nHold >= HOLD_TIME)
-			{
-				tar -= Hol;
-			}
-		}
-
-		return tar;
-	}
+	////テンプレート関数宣言
+	//template <typename T, typename U>
+	//T State(T tar,T Tri ,T Hol, U Key,U KeyDown)
+	//{//数値の上下を設定する関数
+	//	if (CApplication::GetInputKeyboard()->GetTrigger(Key))
+	//	{
+	//		tar += Tri;
+	//	}
+	//	else if (CApplication::GetInputKeyboard()->GetPress(Key))
+	//	{
+	//		m_nHold++;
+	//		if (m_nHold >= HOLD_TIME)
+	//		{
+	//			tar += Hol;
+	//		}
+	//	}
+	//	else if (CApplication::GetInputKeyboard()->GetTrigger(KeyDown))
+	//	{
+	//		tar -= Tri;
+	//	}
+	//	else if (CApplication::GetInputKeyboard()->GetPress(KeyDown))
+	//	{
+	//		m_nHold++;
+	//		if (m_nHold >= HOLD_TIME)
+	//		{
+	//			tar -= Hol;
+	//		}
+	//	}
+	//	return tar;
+	//}
 };
 
 #endif

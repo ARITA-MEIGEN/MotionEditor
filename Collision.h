@@ -20,6 +20,15 @@ public:
 		COLLI_HURTSLOW,		//投げのやられ判定
 	};
 
+	//攻撃の属性
+	enum EDAMAGE_POINT
+	{
+		DP_HIGH = 0,		//上段
+		DP_MIDDLE,			//中段
+		DP_LOW,				//下段
+		DP_MAX,
+	};
+
 	explicit CCollision(int nPriority = 3);
 	~CCollision();
 
@@ -35,21 +44,26 @@ public:
 	D3DXVECTOR3 GetSiz() { return m_width; };
 	void SetPos(D3DXVECTOR3(pos)) { m_pos = pos; };
 	D3DXVECTOR3 GetPos() { return m_pos; };
-	void SwichUse() { bUse = !bUse; };			//オンオフの切り替え
-	void SetUse(bool use) { bUse = use; };		//オンオフの切り替え
-	void SetStartf(int start) { m_nStart = start; };	//開始フレーム
-	int GetStartf() { return m_nStart; };	//開始フレーム
-	void SetEndf(int end) { m_nEnd = end; };			//終了フレーム
-	int GetEndf() { return m_nEnd; };			//終了フレーム
+	void SwichUse() { bUse = !bUse; };						//オンオフの切り替え
+	void SetUse(bool use) { bUse = use; };					//オンオフの切り替え
+	void SetStartf(int start) { m_nStart = start; };		//開始フレーム
+	int GetStartf() { return m_nStart; };					//開始フレーム
+	void SetEndf(int end) { m_nEnd = end; };				//終了フレーム
+	int GetEndf() { return m_nEnd; };						//終了フレーム
 	void SetDPos(D3DXVECTOR3 pos) { m_defaultpos = pos; };	//初期位置
 	void SetDRot(D3DXVECTOR3 rot) { m_defaultrot = rot; };	//初期向き
 	D3DXVECTOR3 GetDPos() { return m_defaultpos; };			//初期位置
 	D3DXVECTOR3 GetDRot() { return m_defaultrot; };			//初期向き
-	void SetDMG(int dmg) { m_nDamage = dmg; };	//ダメージ
-	int GetDMG() { return m_nDamage; };			//ダメージ
-
-
-
+	void SetDMG(int dmg) { m_nDamage = dmg; };				//ダメージ
+	int GetDMG() { return m_nDamage; };						//ダメージ
+	void SetHitRig(int nRig) { m_nHitrig = nRig; };			//ヒット硬直
+	int GetHitRig() { return m_nHitrig; };					//ヒット硬直
+	void SetGuardRig(int nRig) { m_nGuardrig = nRig; };		//ガード硬直
+	int GetGuardRig() { return m_nGuardrig; };				//ガード硬直
+	void SetDp(EDAMAGE_POINT nDp) { m_nDp = nDp; };			//ダメージ属性設定
+	EDAMAGE_POINT GetDp() { return m_nDp; };				//ダメージ属性設定
+	void SetDown(bool down) { m_bDown = down; };			//ダウンする攻撃かどうかの設定
+	bool GetDown() { return m_bDown; };						//ダウンする攻撃かどうかの設定
 
 private:
 	D3DXVECTOR3				m_pos;			//位置
@@ -66,8 +80,10 @@ private:
 	D3DXVECTOR3				m_defaultrot;	//向き
 	D3DXVECTOR3				m_defaultpos;	//位置
 	int						m_nDamage;		//ダメージ量
-
-
+	int						m_nHitrig;		//ヒット硬直
+	int						m_nGuardrig;	//ガード硬直
+	EDAMAGE_POINT			m_nDp;			//ダメージ属性
+	bool					m_bDown;		//ダウンさせる攻撃かどうか
 };
 
 #endif

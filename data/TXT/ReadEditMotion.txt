@@ -158,35 +158,61 @@ END_AXIS
 #------------------------------------------------------------------------------
 	MOTIONSET
 		#立ち
-		MOTION = data/TXT/ST_NEUTRAL.txt
-		MOTION = data/TXT/ST_MOVE.txt
-		MOTION = data/TXT/ST_DASH.txt
-		MOTION = data/TXT/ST_BACKSTEP.txt
-		MOTION = data/TXT/ST_GUARD.txt
-		MOTION = data/TXT/ST_HIT.txt
-		MOTION = data/TXT/ST_LATTACK.txt
-		MOTION = data/TXT/ST_MATTACK.txt
-		MOTION = data/TXT/ST_HATTACK.txt
+		MOTION = data/TXT/ST_NEUTRAL.txt	
+		MOTION = data/TXT/ST_MOVE.txt		
+		MOTION = data/TXT/ST_DASH.txt		
+		MOTION = data/TXT/ST_BACKSTEP.txt	
+		MOTION = data/TXT/ST_GUARD.txt		
+		MOTION = data/TXT/ST_HIT.txt		
+		MOTION = data/TXT/ST_LATTACK.txt	
+		MOTION = data/TXT/ST_MATTACK.txt	
+		MOTION = data/TXT/ST_HATTACK.txt	
+		MOTION = data/TXT/ST_HURT.txt		
 		
 		#空中
-		MOTION = data/TXT/JP_NEUTRAL.txt
-		MOTION = data/TXT/JP_MOVELEFT.txt
-		MOTION = data/TXT/JP_MOVERIGHT.txt
-		MOTION = data/TXT/JP_DASH.txt
-		MOTION = data/TXT/JP_GUARD.txt
-		MOTION = data/TXT/JP_HIT.txt
-		MOTION = data/TXT/JP_LATTACK.txt
-		MOTION = data/TXT/JP_MATTACK.txt
-		MOTION = data/TXT/JP_HATTACK.txt
+		MOTION = data/TXT/JP_NEUTRAL.txt	
+		MOTION = data/TXT/JP_MOVELEFT.txt	
+		MOTION = data/TXT/JP_MOVERIGHT.txt	
+		MOTION = data/TXT/JP_DASH.txt		
+		MOTION = data/TXT/JP_GUARD.txt		
+		MOTION = data/TXT/JP_HIT.txt		
+		MOTION = data/TXT/JP_LATTACK.txt	
+		MOTION = data/TXT/JP_MATTACK.txt	
+		MOTION = data/TXT/JP_HATTACK.txt	
+		MOTION = data/TXT/JP_HURT.txt		
 		
 		#しゃがみ
-		MOTION = data/TXT/CR_NEUTRAL.txt
-		MOTION = data/TXT/CR_MOVE.txt
-		MOTION = data/TXT/CR_GUARD.txt
-		MOTION = data/TXT/CR_HIT.txt
-		MOTION = data/TXT/CR_LATTACK.txt
-		MOTION = data/TXT/CR_MATTACK.txt
-		MOTION = data/TXT/CR_HATTACK.txt
+		MOTION = data/TXT/CR_NEUTRAL.txt	
+		MOTION = data/TXT/CR_MOVE.txt		
+		MOTION = data/TXT/CR_GUARD.txt		
+		MOTION = data/TXT/CR_HIT.txt		
+		MOTION = data/TXT/CR_LATTACK.txt	
+		MOTION = data/TXT/CR_MATTACK.txt	
+		MOTION = data/TXT/CR_HATTACK.txt	
+		MOTION = data/TXT/CR_HURT.txt	
+		
+		#必殺技
+		MOTION = data/TXT/L236.txt	
+		MOTION = data/TXT/M236.txt	
+		MOTION = data/TXT/H236.txt	
+		
+		MOTION = data/TXT/L214.txt	
+		MOTION = data/TXT/M214.txt	
+		MOTION = data/TXT/H214.txt	
+		
+		MOTION = data/TXT/L623.txt	
+		MOTION = data/TXT/M623.txt	
+		MOTION = data/TXT/H623.txt	
+		
+		//死
+		MOTION = data/TXT/ST_DIE.txt		
+		MOTION = data/TXT/JP_DIE.txt		
+		MOTION = data/TXT/CR_DIE.txt		
+		
+		MOTION = data/TXT/DOWN.txt	
+		MOTION = data/TXT/STANDUP.txt		
+		MOTION = data/TXT/SLOW_FORWARD.txt	
+		MOTION = data/TXT/SLOW_BACK.txt		#[41]
 		
 	END_MOTIONSET
 END_SCRIPT		# この行は絶対消さないこと！
