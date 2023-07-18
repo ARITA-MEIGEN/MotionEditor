@@ -47,17 +47,12 @@ HRESULT CPlayer::Init()
 	m_nKEYData = 0;
 	m_bPlay = false;
 
-	for (int i = 0; i < NUM_PARTS; i++)
-	{//プレイヤーの生成
-		m_apModel[i] = CModel::Create();
-	}
-
 	//エラー防止用に全ての数値に0を入れる
 	for (int i = 0; i < MAX_MOTION; i++)
 	{//モーションの初期化
 		for (int j = 0; j < MAX_KEY; j++)
 		{
-			for (int k = 0; k < NUM_PARTS; k++)
+			for (int k = 0; k < m_nNumModel; k++)
 			{
 				m_apMotion[i].aModelKey[j].aKey[k].fPosX = 0.0f;
 				m_apMotion[i].aModelKey[j].aKey[k].fPosY = 0.0f;
@@ -80,7 +75,7 @@ HRESULT CPlayer::Init()
 	//モデルとモーションの読み込み
 	ReadMotion();
 
-	for (int i = 0; i < NUM_PARTS; i++)
+	for (int i = 0; i < m_nNumModel; i++)
 	{
 		//プレイヤーの生成
 		m_apModel[i]->SetPos(D3DXVECTOR3(
@@ -130,7 +125,7 @@ HRESULT CPlayer::Init()
 void CPlayer::Uninit(void)
 {
 
-	for (int i = 0; i < NUM_PARTS; i++)
+	for (int i = 0; i < m_nNumModel; i++)
 	{//プレイヤーの生成
 		m_apModel[i]->Uninit();
 		delete m_apModel[i];
@@ -154,7 +149,7 @@ void CPlayer::Update(void)
 		m_AxisBox->SetPos(m_move + m_AxisBox->GetPos());
 		m_move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		//位置の更新
 
-		if (ControlPlayer() == true)				//操作
+		//if (ControlPlayer() == true)				//操作
 		{
 			//m_pMotion = PM_STAND;	//操作されていない場合ニュートラルに
 		}
@@ -175,7 +170,7 @@ void CPlayer::Update(void)
 	if (CApplication::GetInputKeyboard()->GetTrigger(DIK_F2))
 	{//モード切り替え
 		m_bPlay = !m_bPlay;
-		m_pMotion = PM_ST_NEUTRAL;
+		//m_pMotion = PM_ST_NEUTRAL;
 		m_frame = 0;
 		m_nKEYData = 0;
 	}
@@ -213,7 +208,7 @@ void CPlayer::Draw(void)
 	//ワールドマトリックスの設定
 	pDevice->SetTransform(D3DTS_WORLD, &m_mtxWorld);
 
-	for (int i = 0; i < NUM_PARTS; i++)
+	for (int i = 0; i < m_nNumModel; i++)
 	{
 		m_apModel[i]->Draw(m_mtxWorld);
 	}
@@ -298,11 +293,11 @@ bool CPlayer::ControlPlayer(void)
 	//角度の正規化
 	if (m_rot.y >= D3DX_PI)
 	{
-		m_rot.y -= D3DX_PI * 2;
+	//	m_rot.y -= D3DX_PI * 2;
 	}
 	else if (m_rot.y <= -D3DX_PI)
 	{
-		m_rot.y += D3DX_PI * 2;
+	//	m_rot.y += D3DX_PI * 2;
 	}
 
 	return bNeutral;
@@ -344,7 +339,7 @@ void CPlayer::ReadMotion()
 	int Idx = 0;
 
 	//ファイル読み込み
-	FILE*fp = fopen("data/TXT/ReadEditMotion.txt","r");		//ファイル読み込み
+	FILE*fp = fopen("data/TXT/Player001.txt","r");		//ファイル読み込み
 	if (fp == nullptr)
 	{//開けなかった時用
 		assert(false);
@@ -361,7 +356,7 @@ void CPlayer::ReadMotion()
 				{//モデルの初期設定
 					ZeroMemory(strLine, sizeof(char) * lenLine);	//文字列リセット
 
-																	//文字列の分析
+					//文字列の分析
 					sscanf(Read, "%s", &strLine);
 
 					if (strcmp(&strLine[0], "END_SCRIPT") == 0)
@@ -371,6 +366,11 @@ void CPlayer::ReadMotion()
 					else if (strcmp(&strLine[0], "NUM_MODEL") == 0)
 					{
 						sscanf(Read, "%s = %d", &strLine, &m_nNumModel);	//読み込んだ文字ごとに設定する
+
+						for (int i = 0; i < m_nNumModel; i++)
+						{//プレイヤーの生成
+							m_apModel[i] = CModel::Create();
+						}
 					}
 					else if (strcmp(&strLine[0], "MODEL_FILENAME") == 0)
 					{
@@ -474,7 +474,7 @@ void CPlayer::ReadMotion()
 											{
 												ZeroMemory(strLine, sizeof(char) * lenLine);	//文字列リセット
 
-																								//文字列の分析
+												//文字列の分析
 												sscanf(Read, "%s", &strLine);
 												if (strcmp(&strLine[0], "END_MOTIONSET") == 0)
 												{
@@ -773,7 +773,7 @@ void CPlayer::WriteMotion(int nowmotion)
 				fprintf(fp, "			END_HURTSET\n\n");
 			}
 
-			for (int j = 0; j < NUM_PARTS; j++)
+			for (int j = 0; j < m_nNumModel; j++)
 			{//キーの座標と方向
 				fprintf(fp, "		KEY	# ----- [ %d ] -----\n", j);
 				fprintf(fp, "				POS = %.2f %.2f %.2f \n",
@@ -827,7 +827,7 @@ void CPlayer::MotionManager()
 //===========================
 void CPlayer::PlayFirstMotion()
 {
-	for (int i = 0; i < NUM_PARTS; i++)
+	for (int i = 0; i < m_nNumModel; i++)
 	{
 		//モーション再設定
 		m_apModel[i]->SetPos(D3DXVECTOR3(
@@ -849,7 +849,7 @@ void CPlayer::PlayFirstMotion()
 //===========================
 void CPlayer::EditMode()
 {
-	for (int i = 0; i < NUM_PARTS; i++)
+	for (int i = 0; i < m_nNumModel; i++)
 	{
 		//モーション再設定
 		m_apModel[i]->SetPos(D3DXVECTOR3(
@@ -867,7 +867,7 @@ void CPlayer::EditMode()
 
 	CDebugProc::Print("現在のモード:EDIT");
 	char* cNowmodel;
-	for (int i = 0; i < NUM_PARTS; i++)
+	for (int i = 0; i < m_nNumModel; i++)
 	{
 		if (m_nEditModel==i)
 		{
@@ -894,10 +894,10 @@ void CPlayer::EditMode()
 			m_apMotion[m_pMotion].aModelKey[m_nKEYData].aKey[i].fRotZ);
 	}
 
-	m_nEditModel = m_nEditModel % NUM_PARTS;
+	m_nEditModel = m_nEditModel % m_nNumModel;
 	if (m_nEditModel < 0)
 	{
-		m_nEditModel = NUM_PARTS-1;
+		m_nEditModel = m_nNumModel-1;
 	}
 
 	//モーション書き出し
@@ -919,7 +919,7 @@ void CPlayer::EditMode()
 //===========================
 void CPlayer::Normalize(int number)
 {
-	if (m_apMotion[m_pMotion].aModelKey[m_nKEYData].aKey[number].fRotX >= D3DX_PI)
+	/*if (m_apMotion[m_pMotion].aModelKey[m_nKEYData].aKey[number].fRotX >= D3DX_PI)
 	{
 		m_apMotion[m_pMotion].aModelKey[m_nKEYData].aKey[number].fRotX -= D3DX_PI * 2;
 	}
@@ -942,7 +942,7 @@ void CPlayer::Normalize(int number)
 	else if (m_apMotion[m_pMotion].aModelKey[m_nKEYData].aKey[number].fRotZ <= -D3DX_PI)
 	{
 		m_apMotion[m_pMotion].aModelKey[m_nKEYData].aKey[number].fRotZ += D3DX_PI * 2;
-	}
+	}*/
 }
 
 //===========================
@@ -997,7 +997,7 @@ void CPlayer::PlayerStateDraw()
 	}
 	if (ImGui::CollapsingHeader(u8"モーションの設定"))
 	{
-		ImGui::SliderInt(u8"モデル選択", &m_nEditModel, 0, NUM_PARTS - 1);										//編集するモデル
+		ImGui::SliderInt(u8"モデル選択", &m_nEditModel, 0, m_nNumModel - 1);										//編集するモデル
 		ImGui::SliderInt(u8"再生するモーション", (int*)&m_pMotion, 0, PM_MAX - 1);								//再生しているモーション番号
 		ImGui::SliderInt(u8"再生するキー", &m_nKEYData, 0, m_apMotion[m_pMotion].nNumKey - 1);					//再生するキーの番号
 		ImGui::InputInt(u8"キーの数", &m_apMotion[m_pMotion].nNumKey, 1, 1);									//モーションのキーの数
@@ -1051,7 +1051,7 @@ void CPlayer::PlayerStateDraw()
 				ZeroMemory(m_apMotion[m_pMotion].aModelKey[m_nKEYData].aKey[m_nEditModel].fTempRot, sizeof(D3DXVECTOR3));
 
 			if (ImGui::Button("BASE RESET"))
-				for (int i = 0; i < NUM_PARTS; i++)
+				for (int i = 0; i < m_nNumModel; i++)
 				{
 					m_apMotion[m_pMotion].aModelKey[m_nKEYData].aKey[i].fRotX = 0.0f,
 						m_apMotion[m_pMotion].aModelKey[m_nKEYData].aKey[i].fRotY = 0.0f,
@@ -1328,7 +1328,7 @@ void CPlayer::SetFrame()
 				m_apMotion[m_pMotion].aModelKey[m_nKEYData].Collision[i]->SetUse(false);
 			}
 		}
-		for (int i = 0; i < NUM_PARTS; i++)
+		for (int i = 0; i < m_nNumModel; i++)
 		{//パーツ全部のモーション再生
 			if (m_apModel[i] != nullptr)
 			{

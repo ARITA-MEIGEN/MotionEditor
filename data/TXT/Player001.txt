@@ -1,0 +1,137 @@
+#==============================================================================
+#
+# モーション設定用テキストファイル
+# Author : MEIGEN ARITA
+#
+#==============================================================================
+SCRIPT			# この行は絶対消さないこと！
+
+#------------------------------------------------------------------------------
+# モデル数
+#------------------------------------------------------------------------------
+NUM_MODEL = 11
+
+#------------------------------------------------------------------------------
+# モデルファイル名
+#------------------------------------------------------------------------------
+MODEL_FILENAME = data\MODEL\Player\Body.x		# 体
+MODEL_FILENAME = data\MODEL\Player\Head.x		# 頭
+MODEL_FILENAME = data\MODEL\Player\Waist.x		# 腰
+MODEL_FILENAME = data\MODEL\Player\UpperArmR.x	# 右腕
+MODEL_FILENAME = data\MODEL\Player\ArmR.x		# 右腕
+MODEL_FILENAME = data\MODEL\Player\HandR.x		# 右手
+MODEL_FILENAME = data\MODEL\Player\UpperArmL.x	# 左腕
+MODEL_FILENAME = data\MODEL\Player\ArmL.x		# 左腕
+MODEL_FILENAME = data\MODEL\Player\HandL.x		# 左手
+MODEL_FILENAME = data\MODEL\Player\LegR.x		# 右足
+MODEL_FILENAME = data\MODEL\Player\LegL.x		# 左足
+
+#------------------------------------------------------------------------------
+# キャラクター情報
+#------------------------------------------------------------------------------
+CHARACTERSET
+	NUM_PARTS = 11					# パーツ数
+	MOVE = 3.0						# 移動量
+	JUMP = 10.25					# ジャンプ量
+	RADIUS = 20.0					# 半径
+
+	PARTSSET
+		INDEX = 0					# 体
+		PARENT = -1					# (親)NULL
+		POS = 0.0 52.5 0.0
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+
+	PARTSSET
+		INDEX = 1					# 頭
+		PARENT = 0					# (親)体
+		POS = 0.0 15.2 0.0
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+	
+	PARTSSET
+		INDEX = 2					# 腰
+		PARENT = 0					# (親)体
+		POS = 0.0 -18.9 0.0
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+
+	PARTSSET
+		INDEX = 3					# 右腕
+		PARENT = 0					# (親)体
+		POS = -13.1 9.3 0.0
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+	
+	PARTSSET
+		INDEX = 4					# 右腕
+		PARENT = 3					# (親)体
+		POS = -5.8 -19.4 0.0
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+
+	PARTSSET
+		INDEX = 5					# 右手
+		PARENT = 4					# (親)右腕
+		POS = -0.60 -13.7 0.0
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+
+	PARTSSET
+		INDEX = 6					# 左腕
+		PARENT = 0					# (親)体
+		POS = 13.1 9.3 0.0
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+
+	PARTSSET
+		INDEX = 7					# 左腕
+		PARENT = 6					# (親)二の腕
+		POS = 5.8 -19.4 0.0
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+
+	PARTSSET
+		INDEX = 8					# 左手
+		PARENT = 7					# (親)左腕
+		POS = 0.60 -13.7 0.0
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+
+	PARTSSET
+		INDEX = 9					# 右足
+		PARENT = 2					# (親)腰
+		POS = -6.0 -5.3 0.0
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+
+	PARTSSET
+		INDEX = 10					# 左足
+		PARENT = 2					# (親)腰
+		POS = 6.0 -5.3 0.0
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+	
+END_CHARACTERSET
+
+#------------------------------------------------------------------------------
+# 軸判定の設定
+#------------------------------------------------------------------------------
+AXISSET
+	POS = 0.00 37.00 0.00 
+	SIZ = 28.00 68.00 24.00 
+END_AXIS
+#------------------------------------------------------------------------------
+# モーション情報
+#------------------------------------------------------------------------------
+MOTIONSET
+	MOTION = data\TXT\Player001\NEUTRAL.txt
+	MOTION = data\TXT\Player001\WALK.txt
+	MOTION = data\TXT\Player001\STAN.txt
+	MOTION = data\TXT\Player001\WIN.txt
+	MOTION = data\TXT\Player001\LOSE.txt
+	MOTION = data\TXT\Player001\SKILLSELECT.txt
+	MOTION = data\TXT\Player001\SKILL_WAVE.txt
+END_MOTIONSET
+
+END_SCRIPT		# この行は絶対消さないこと！

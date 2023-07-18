@@ -23,7 +23,7 @@ class CCollision;
 #define MAX_MOTION		(20)	//モーションの数
 #define MAX_KEY			(60)	//キーの総数
 #define MAX_FRAME		(120)	//フレームの最大数
-#define NUM_PARTS		(14)	//パーツの数
+#define NUM_PARTS		(30)	//パーツの数
 #define HOLD_TIME		(30)	//長押しして処理が通るまでの時間
 #define SINGLE_STA		(0.01f)	//単体で動かす量
 #define HOLD_STA		(0.05f)	//長押しで動かす量
@@ -197,7 +197,7 @@ private:
 	KEY_SET			m_CopyKey;						//キーのコピー
 	CCollision*		m_CopyCollision[MAX_COLLISION];	//やられ判定のコピー
 	int				m_CopyColNumber;				//コピーするやられ判定の番号
-
+	int				m_nNumParts;					//パーツの数
 
 	//使わねえ奴
 
